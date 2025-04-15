@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h2>About Us</h2>
+            </div>
+            <div class="col-12">
+                <a href="{% url 'home' %}">Home</a>
+                <a href="{% url 'about' %}">About Us</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="about">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <div class="about-img" data-parallax="scroll" data-image-src="{{ about_section.image.url }}"></div>
+            </div>
+            <div class="col-lg-6">
+                <div class="section-header">
+                    <p>Learn About Us</p>
+                    <h2>{{ about_section.title }}</h2>
+                </div>
+                <div class="about-tab">
+                    <ul class="nav nav-pills nav-justified">
+                        {% for tab in about_section.tabs.all %}
+                        <li class="nav-item">
+                            <a class="nav-link {% if tab.is_active %}active{% endif %}"
+                               data-toggle="pill" href="#tab-content-{{ forloop.counter }}">
+                                {{ tab.get_tab_type_display }}
+                            </a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+
+                    <div class="tab-content">
+                        {% for tab in about_section.tabs.all %}
+                        <div id="tab-content-{{ forloop.counter }}"
+                             class="container tab-pane {% if tab.is_active %}active{% else %}fade{% endif %}">
+                            {{ tab.content|safe }}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="facts" data-parallax="scroll" data-image-src="{% static 'img/Gaza-facts.jpeg' %}">
+    <div class="container">
+        <div class="row">
+            {% for fact in facts %}
+            <div class="col-lg-3 col-md-6">
+                <div class="facts-item">
+                    <i class="{{ fact.icon_class }} fa-3x mb-3"></i>  <!-- Added fa-3x for size -->
+                        <div class="facts-text">
+                             <h3 class="{% if fact.is_money %}facts-dollar{% else %}facts-plus{% endif %}"
+                              data-toggle="counter-up">{{ fact.count }}</h3>
+                                    <p>{{ fact.label }}</p>
+                        </div>
+                    </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<div class="team">
+    <div class="container">
+        <div class="section-header text-center">
+            <p>Meet Our Team</p>
+            <h2>Awesome guys behind our charity activities</h2>
+        </div>
+        <div class="row">
+            {% for member in team_members %}
+            <div class="col-lg-3 col-md-6">
+                <div class="team-item">
+                    <div class="team-img">
+                        <img src="{{ member.image.url }}" alt="{{ member.name }}">
+                    </div>
+                    <div class="team-text">
+                        <h2>{{ member.name }}</h2>
+                        <p>{{ member.position }}</p>
+                        <div class="team-social">
+                            {% if member.twitter %}
+                            <a href="{{ member.twitter }}"><i class="fab fa-twitter"></i></a>
+                            {% endif %}
+                            {% if member.facebook %}
+                            <a href="{{ member.facebook }}"><i class="fab fa-facebook-f"></i></a>
+                            {% endif %}
+                            {% if member.linkedin %}
+                            <a href="{{ member.linkedin }}"><i class="fab fa-linkedin-in"></i></a>
+                            {% endif %}
+                            {% if member.instagram %}
+                            <a href="{{ member.instagram }}"><i class="fab fa-instagram"></i></a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<div class="testimonial">
+    <div class="container">
+        <div class="section-header text-center">
+            <p>Testimonial</p>
+            <h2>What people are talking about our charity activities</h2>
+        </div>
+        <div class="owl-carousel testimonials-carousel">
+            {% for testimonial in testimonials %}
+            <div class="testimonial-item">
+                <div class="testimonial-profile">
+                    <img src="{{ testimonial.image.url }}" alt="{{ testimonial.name }}">
+                    <div class="testimonial-name">
+                        <h3>{{ testimonial.name }}</h3>
+                        <p>{{ testimonial.profession }}</p>
+                    </div>
+                </div>
+                <div class="testimonial-text">
+                    <p>{{ testimonial.content }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

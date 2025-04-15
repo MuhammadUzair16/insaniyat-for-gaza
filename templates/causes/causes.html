@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<div class="page-header">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12">
+                        <h2>Popular Causes</h2>
+                    </div>
+                    <div class="col-12">
+                        <a href="{% url 'home' %}">Home</a>
+                        <a href="{% url 'causes:cause_list' %}">Causes</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+
+
+
+<div class="service">
+    <div class="container">
+        <div class="section-header text-center">
+            <p>What We Do?</p>
+            <h2>We believe that we can save more lifes with you</h2>
+        </div>
+        <div class="row">
+            <div class="col-lg-4 col-md-6">
+                <div class="service-item">
+                    <div class="service-icon">
+                        <i class="flaticon-diet"></i>
+                    </div>
+                    <div class="service-text">
+                        <h3>Healthy Food</h3>
+                        <p>Nutritious meals are vital for families in Gaza to combat malnutrition and maintain strength during these difficult times.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="service-item">
+                    <div class="service-icon">
+                        <i class="flaticon-water"></i>
+                    </div>
+                    <div class="service-text">
+                        <h3>Pure Water</h3>
+                        <p>Access to clean drinking water is critical to prevent waterborne diseases and ensure the health of vulnerable communities.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="service-item">
+                    <div class="service-icon">
+                        <i class="flaticon-healthcare"></i>
+                    </div>
+                    <div class="service-text">
+                        <h3>Health Care</h3>
+                        <p>Emergency medical aid and healthcare services are urgently needed to treat injuries and save lives in war-torn Gaza.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="service-item">
+                    <div class="service-icon">
+                        <i class="flaticon-education"></i>
+                    </div>
+                    <div class="service-text">
+                        <h3>Primary Education</h3>
+                        <p>Safe learning spaces and educational support help children continue their schooling despite displacement and conflict</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="service-item">
+                    <div class="service-icon">
+                        <i class="flaticon-home"></i>
+                    </div>
+                    <div class="service-text">
+                        <h3>Residence Facilities</h3>
+                        <p>Shelter and safe housing are essential for families who have lost their homes due to bombings and destruction.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="service-item">
+                    <div class="service-icon">
+                        <i class="flaticon-social-care"></i>
+                    </div>
+                    <div class="service-text">
+                        <h3>Social Care</h3>
+                        <p>Psychological support and community aid help traumatized individuals heal and rebuild their lives after war.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="causes">
+    <div class="container">
+        <div class="section-header text-center">
+            <p>Popular Causes</p>
+            <h2>Let's know about charity causes around the world</h2>
+        </div>
+        <div class="owl-carousel causes-carousel">
+            {% for cause in causes %}
+            <div class="causes-item">
+                <div class="causes-img">
+                    <img src="{{ cause.image.url }}" alt="{{ cause.title }}">
+                </div>
+                <div class="causes-progress">
+                    <div class="progress">
+                        <div class="progress-bar" role="progressbar" style="width:{{ cause.progress }}%" aria-valuenow="{{ cause.progress }}" aria-valuemin="0" aria-valuemax="100">
+                            <span>{{ cause.progress }}%</span>
+                        </div>
+                    </div>
+                    <div class="progress-text">
+                        <p><strong>Raised:</strong> ${{ cause.raised_amount }}</p>
+                        <p><strong>Goal:</strong> ${{ cause.goal_amount }}</p>
+                    </div>
+                </div>
+                <div class="causes-text">
+                    <h3>{{ cause.title }}</h3>
+                    <p>{{ cause.description }}</p>
+                </div>
+                <div class="causes-btn">
+                    <a href="{% url 'causes:cause_detail' slug=cause.slug %}" class="btn btn-custom">Learn More</a>
+                    <a href="#" class="btn btn-custom">Donate Now</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}

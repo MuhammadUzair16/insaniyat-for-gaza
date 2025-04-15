@@ -1,0 +1,194 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h2>{{ post.title }}</h2>
+            </div>
+            <div class="col-12">
+                <a href="{% url 'home' %}">Home</a>
+                <a href="{% url 'blog:blog_list' %}">Blog</a>
+                <a href="#">{{ post.title }}</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="blog-detail">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                <!-- Post Image (Smaller Size) -->
+                <div class="blog-img text-center mb-4">
+                    <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" class="img-fluid rounded" style="max-height: 400px; width: auto;">
+                </div>
+
+                <!-- Post Meta -->
+                <div class="blog-meta d-flex justify-content-between align-items-center mb-4 p-3 bg-light rounded">
+                    <div class="author-info d-flex align-items-center">
+<!--                        <div class="avatar me-3">-->
+<!--                            <i class="fas fa-user-circle fa-2x text-muted"></i>-->
+<!--                        </div>-->
+                        <div>
+                            <p class="mb-0 fw-bold">{{ post.author.username }}</p>
+                            <p class="mb-0 text-muted small">{{ post.created_at|date:"F d, Y" }}</p>
+                        </div>
+                    </div>
+                    <div class="share-buttons">
+                        <a href="#" class="text-muted me-2"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="text-muted me-2"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-muted"><i class="fas fa-link"></i></a>
+                    </div>
+                </div>
+
+                <!-- Post Content -->
+                <div class="blog-content mb-5">
+                    {{ post.content|linebreaks }}
+                </div>
+
+                <!-- Comments Section -->
+                <div class="comments-section mb-5" id="comments">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h3 class="mb-0">
+                            <i class="fas fa-comments me-2" style="color: #FFD700;"></i>
+                            Comments ({{ comments.count }})
+                        </h3>
+                    </div>
+
+                    <!-- Comments List -->
+                    <div class="comments-list mb-5">
+                        {% for comment in comments %}
+                        <div class="comment mb-4 p-3 border-start border-3 border-primary">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h5 class="mb-0">{{ comment.name }}</h5>
+                                <small class="text-muted">{{ comment.created_at|date:"M d, Y" }}</small>
+                            </div>
+                            <p class="mb-0">{{ comment.content }}</p>
+                        </div>
+                        {% empty %}
+                        <div class="text-center py-4 bg-light rounded">
+                            <i class="far fa-comment-dots fa-2x mb-3 text-muted"></i>
+                            <h5>No comments yet</h5>
+                            <p class="text-muted">Be the first to share your thoughts</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Comment Form -->
+                    <div class="comment-form">
+                        <h4 class="mb-4">
+                            <i class="far fa-edit me-2" style="color: #FFD700;"></i>
+                            Leave a Comment
+                        </h4>
+
+                        <form method="post" class="needs-validation" novalidate>
+                            {% csrf_token %}
+
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label for="id_name" class="form-label">Your Name *</label>
+                                        <input type="text" class="form-control rounded-0" id="id_name" name="name" required>
+                                        <div class="invalid-feedback">Please provide your name.</div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label for="id_email" class="form-label">Email Address *</label>
+                                        <input type="email" class="form-control rounded-0" id="id_email" name="email" required>
+                                        <div class="invalid-feedback">Please provide a valid email.</div>
+                                    </div>
+                                </div>
+
+                                <div class="col-12">
+                                    <div class="form-group mb-3">
+                                        <label for="id_content" class="form-label">Your Comment *</label>
+                                        <textarea class="form-control rounded-0" id="id_content" name="content" rows="4" required></textarea>
+                                        <div class="invalid-feedback">Please enter your comment.</div>
+                                    </div>
+                                </div>
+
+                                <div class="col-12">
+                                   <button type="submit" class="btn btn-custom">
+    <i class="far fa-paper-plane me-2"></i>
+    Post Comment
+</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <!-- Sidebar content -->
+                <div class="sidebar-widget mb-4">
+                    <h4 class="widget-title mb-3 pb-2 border-bottom">About Author</h4>
+                    <div class="d-flex align-items-center mb-3">
+<!--                        <div class="flex-shrink-0">-->
+<!--                            <i class="fas fa-user-circle fa-3x text-muted"></i>-->
+<!--                        </div>-->
+                        <div class="flex-grow-1 ms-3">
+                            <h5 class="mb-0">{{ post.author.username }}</h5>
+                            <p class="text-muted small mb-0">Organization Member</p>
+                        </div>
+                    </div>
+                    <p class="mb-0">Our team works tirelessly to provide updates and insights from our humanitarian efforts.</p>
+                </div>
+
+                <div class="sidebar-widget">
+                    <h4 class="widget-title mb-3 pb-2 border-bottom">Recent Posts</h4>
+                    {% for recent in recent_posts %}
+                    <div class="recent-post mb-3">
+                        <a href="{{ recent.get_absolute_url }}" class="d-flex text-decoration-none text-dark">
+                            <div class="flex-shrink-0">
+                                <img src="{{ recent.featured_image.url }}" alt="{{ recent.title }}" class="rounded" width="80">
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <h6 class="mb-1">{{ recent.title }}</h6>
+                                <small class="text-muted">{{ recent.created_at|date:"M d, Y" }}</small>
+                            </div>
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .blog-img img {
+        object-fit: cover;
+        max-width: 100%;
+    }
+    .comment {
+        background-color: #f8f9fa;
+        transition: all 0.3s ease;
+    }
+    .comment:hover {
+        background-color: #fff;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+    .form-control {
+        border-radius: 0 !important;
+        border: 1px solid #ddd;
+    }
+    .form-control:focus {
+        border-color: #0d6efd;
+        box-shadow: none;
+    }
+    .widget-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+    }
+    .recent-post img {
+        height: 60px;
+        width: 80px;
+        object-fit: cover;
+    }
+</style>
+{% endblock %}
