@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h2>Team Member</h2>
+            </div>
+            <div class="col-12">
+                <a href="{% url 'home' %}">Home</a>
+                <a href="{% url 'about' %}">Team</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="team">
+    <div class="container">
+        <div class="section-header text-center">
+            <p>Meet Our Team</p>
+            <h2>Awesome guys behind our charity activities</h2>
+        </div>
+        <div class="row">
+            {% for member in team_members %}
+            <div class="col-lg-3 col-md-6">
+                <div class="team-item">
+                    <div class="team-img">
+                        <img src="{{ member.image.url }}" alt="{{ member.name }}">
+                    </div>
+                    <div class="team-text">
+                        <h2>{{ member.name }}</h2>
+                        <p>{{ member.position }}</p>
+                        <div class="team-social">
+                            {% if member.twitter %}
+                            <a href="{{ member.twitter }}"><i class="fab fa-twitter"></i></a>
+                            {% endif %}
+                            {% if member.facebook %}
+                            <a href="{{ member.facebook }}"><i class="fab fa-facebook-f"></i></a>
+                            {% endif %}
+                            {% if member.linkedin %}
+                            <a href="{{ member.linkedin }}"><i class="fab fa-linkedin-in"></i></a>
+                            {% endif %}
+                            {% if member.instagram %}
+                            <a href="{{ member.instagram }}"><i class="fab fa-instagram"></i></a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}

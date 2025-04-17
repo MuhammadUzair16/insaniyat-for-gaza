@@ -312,7 +312,7 @@
                         </div>
                         <div class="event-text">
                             <h3>{{ event.title }}</h3>
-                            <p>{{ event.description|truncatewords:20 }}</p>
+                            <p>{{ event.description|truncatewords:5 }}</p>
                             <a class="btn btn-custom" href="{% url 'events:event_detail' event.slug %}">Join Now</a>
                         </div>
                     </div>
@@ -364,20 +364,25 @@
 </div>
 
 <!-- Volunteer Start -->
-<div class="volunteer" data-parallax="scroll" data-image-src="{% static 'img/volunteer.jpg' %}">
+<!-- Volunteer Start -->
+<div class="volunteer" data-parallax="scroll" data-image-src="{% static 'img/volunteer.png' %}">
     <div class="container">
         <div class="row align-items-center">
             <div class="col-lg-5">
                 <div class="volunteer-form">
-                    <form>
+                    <form id="volunteerForm" method="post" action="{% url 'volunteer:volunteer' %}">
+                        {% csrf_token %}
                         <div class="control-group">
-                            <input type="text" class="form-control" placeholder="Name" required="required" />
+                            <input type="text" class="form-control" id="id_name" name="name" placeholder="Name" required>
+                            <div class="invalid-feedback" id="name-error"></div>
                         </div>
                         <div class="control-group">
-                            <input type="email" class="form-control" placeholder="Email" required="required" />
+                            <input type="email" class="form-control" id="id_email" name="email" placeholder="Email" required>
+                            <div class="invalid-feedback" id="email-error"></div>
                         </div>
                         <div class="control-group">
-                            <textarea class="form-control" placeholder="Why you want to become a volunteer?" required="required"></textarea>
+                            <textarea class="form-control" id="id_motivation" name="motivation" placeholder="Why you want to become a volunteer?" required></textarea>
+                            <div class="invalid-feedback" id="motivation-error"></div>
                         </div>
                         <div>
                             <button class="btn btn-custom" type="submit">Become a volunteer</button>
@@ -393,7 +398,8 @@
                     </div>
                     <div class="volunteer-text">
                         <p>
-                            Lorem ipsum dolor sit amet elit. Phasellus nec pretium mi. Curabitur facilisis ornare velit non. Aliquam metus tortor, auctor id gravida, viverra quis sem. Curabitur non nisl nec nisi maximus. Aenean convallis porttitor. Aliquam interdum at lacus non blandit.
+                            Join our team of dedicated volunteers and help us provide essential services to those in need.
+                            Your time and skills can change lives in our community.
                         </p>
                     </div>
                 </div>
@@ -401,6 +407,111 @@
         </div>
     </div>
 </div>
+<!-- Volunteer End -->
+
+<!-- Success Message Container -->
+<div id="volunteerSuccessMessage" style="display: none; position: fixed; top: 20px; right: 20px; padding: 15px 25px; background-color: #FDBE33; color: white; border-radius: 4px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); z-index: 9999; opacity: 0; transition: opacity 0.5s ease-in-out;"></div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('volunteerForm');
+    const successMessage = document.getElementById('volunteerSuccessMessage');
+
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        let isValid = true;
+
+        // Clear previous errors
+        document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+        document.querySelectorAll('.invalid-feedback').forEach(el => el.textContent = '');
+
+        // Validate required fields
+        ['name', 'email', 'motivation'].forEach(field => {
+            const input = document.getElementById(`id_${field}`);
+            const errorElement = document.getElementById(`${field}-error`);
+
+            if (!input.value.trim()) {
+                input.classList.add('is-invalid');
+                if (errorElement) {
+                    errorElement.textContent = 'This field is required';
+                }
+                isValid = false;
+            }
+        });
+
+        // Validate email format
+        const email = document.getElementById('id_email');
+        const emailError = document.getElementById('email-error');
+        if (email.value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) {
+            email.classList.add('is-invalid');
+            if (emailError) {
+                emailError.textContent = 'Please enter a valid email';
+            }
+            isValid = false;
+        }
+
+        if (isValid) {
+            const formData = new FormData(form);
+
+            fetch(form.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': form.querySelector('[name=csrfmiddlewaretoken]').value
+                }
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('Network response was not ok');
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    // Update and show success message
+                    successMessage.textContent = data.message || 'Thank you for volunteering! We will contact you soon.';
+                    successMessage.style.display = 'block';
+                    setTimeout(() => successMessage.style.opacity = '1', 10);
+
+                    // Reset form
+                    form.reset();
+
+                    // Hide message after 2 seconds with fade out
+                    setTimeout(() => {
+                        successMessage.style.opacity = '0';
+                        setTimeout(() => {
+                            successMessage.style.display = 'none';
+                        }, 500);
+                    }, 2000);
+                } else if (data.errors) {
+                    // Handle server-side validation errors
+                    Object.entries(data.errors).forEach(([field, errors]) => {
+                        const input = document.getElementById(`id_${field}`);
+                        const errorElement = document.getElementById(`${field}-error`);
+                        if (input && errorElement) {
+                            input.classList.add('is-invalid');
+                            errorElement.textContent = errors[0].message;
+                        }
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                successMessage.textContent = 'An error occurred. Please try again.';
+                successMessage.style.backgroundColor = '#dc3545';
+                successMessage.style.display = 'block';
+                setTimeout(() => successMessage.style.opacity = '1', 10);
+                setTimeout(() => {
+                    successMessage.style.opacity = '0';
+                    setTimeout(() => {
+                        successMessage.style.display = 'none';
+                        successMessage.style.backgroundColor = '#FDBE33';
+                    }, 500);
+                }, 3000);
+            });
+        }
+    });
+});
+</script>
 <!-- Volunteer End -->
 
 <!-- Testimonial Start -->
@@ -430,45 +541,179 @@
 </div>
 
 <!-- Contact Start -->
-<div class="contact">
+<!-- Add this section where you want the contact form to appear in home.html -->
+<div class="contact-section" style="margin-top: 50px;">
     <div class="container">
-        <div class="section-header text-center">
-            <p>Get In Touch</p>
-            <h2>Contact for any query</h2>
+        <div class="section-header text-center text-white mb-5">
+            <p class="text-uppercase">Get In Touch</p>
+            <h2 class="display-5 fw-bold" style="color: #FFD700">Contact us anytime</h2>
         </div>
-        <div class="contact-img">
-            <img src="{% static 'img/contact.jpg' %}" alt="Image">
-        </div>
-        <div class="contact-form">
-            <div id="success"></div>
-            <form name="sentMessage" id="contactForm" novalidate="novalidate">
-                <div class="control-group">
-                    <input type="text" class="form-control" id="name" placeholder="Your Name" required="required" data-validation-required-message="Please enter your name" />
-                    <p class="help-block text-danger"></p>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-xl-6">
+                <div class="contact-form-container p-4 p-md-5 shadow-lg">
+                    <form method="post" id="homeContactForm" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3">
+                                    <input type="text" class="form-control" id="home_id_name" name="name" placeholder="Your Name" required>
+                                    <label for="home_id_name"></label>
+                                    <div class="invalid-feedback" id="home_name-error"></div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3">
+                                    <input type="email" class="form-control" id="home_id_email" name="email" placeholder="Your Email" required>
+                                    <label for="home_id_email"></label>
+                                    <div class="invalid-feedback" id="home_email-error"></div>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-floating mb-3">
+                                    <input type="text" class="form-control" id="home_id_subject" name="subject" placeholder="Subject" required>
+                                    <label for="home_id_subject"></label>
+                                    <div class="invalid-feedback" id="home_subject-error"></div>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-floating mb-4">
+                                    <textarea class="form-control" id="home_id_message" name="message" style="height: 150px" placeholder="Message" required></textarea>
+                                    <label for="home_id_message"></label>
+                                    <div class="invalid-feedback" id="home_message-error"></div>
+                                </div>
+                            </div>
+                            <div class="col-12 text-center">
+                                <button class="btn btn-custom" type="submit">
+                                    <i class="far fa-paper-plane me-2"></i> Send Message
+                                </button>
+                            </div>
+                        </div>
+                    </form>
                 </div>
-                <div class="control-group">
-                    <input type="email" class="form-control" id="email" placeholder="Your Email" required="required" data-validation-required-message="Please enter your email" />
-                    <p class="help-block text-danger"></p>
-                </div>
-                <div class="control-group">
-                    <input type="text" class="form-control" id="subject" placeholder="Subject" required="required" data-validation-required-message="Please enter a subject" />
-                    <p class="help-block text-danger"></p>
-                </div>
-                <div class="control-group">
-                    <textarea class="form-control" id="message" placeholder="Message" required="required" data-validation-required-message="Please enter your message"></textarea>
-                    <p class="help-block text-danger"></p>
-                </div>
-                <div>
-                    <button class="btn btn-custom" type="submit" id="sendMessageButton">Send Message</button>
-                </div>
-            </form>
+            </div>
         </div>
     </div>
 </div>
-<!-- Contact End -->
 
-<!-- Blog Start -->
-<!-- Blog Start -->
+<!-- Success Message Container -->
+<div id="homeContactSuccessMessage" style="display: none; position: fixed; top: 20px; right: 20px; padding: 15px 25px; background-color: #FDBE33; color: white; border-radius: 4px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); z-index: 9999; opacity: 0; transition: opacity 0.5s ease-in-out;"></div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('homeContactForm');
+    const successMessage = document.getElementById('homeContactSuccessMessage');
+
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        let isValid = true;
+
+        // Clear previous errors
+        document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+        document.querySelectorAll('.invalid-feedback').forEach(el => el.textContent = '');
+
+        // Validate each field
+        ['name', 'email', 'subject', 'message'].forEach(field => {
+            const input = document.getElementById(`home_id_${field}`);
+            const errorElement = document.getElementById(`home_${field}-error`);
+
+            if (!input.value.trim()) {
+                input.classList.add('is-invalid');
+                if (errorElement) {
+                    errorElement.textContent = 'This field is required';
+                }
+                isValid = false;
+            }
+        });
+
+        // Validate email format
+        const email = document.getElementById('home_id_email');
+        const emailError = document.getElementById('home_email-error');
+        if (email.value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) {
+            email.classList.add('is-invalid');
+            if (emailError) {
+                emailError.textContent = 'Please enter a valid email';
+            }
+            isValid = false;
+        }
+
+        if (isValid) {
+            const formData = new FormData(form);
+
+            fetch("{% url 'contact:contact' %}", {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': form.querySelector('[name=csrfmiddlewaretoken]').value
+                }
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('Network response was not ok');
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    // Update and show success message
+                    successMessage.textContent = data.message || 'Your message has been sent successfully!';
+                    successMessage.style.display = 'block';
+                    setTimeout(() => successMessage.style.opacity = '1', 10);
+
+                    // Reset form
+                    form.reset();
+
+                    // Hide message after 2 seconds with fade out
+                    setTimeout(() => {
+                        successMessage.style.opacity = '0';
+                        setTimeout(() => {
+                            successMessage.style.display = 'none';
+                        }, 500);
+                    }, 2000);
+                } else if (data.errors) {
+                    // Handle server-side validation errors
+                    Object.entries(data.errors).forEach(([field, errors]) => {
+                        const input = document.getElementById(`home_id_${field}`);
+                        const errorElement = document.getElementById(`home_${field}-error`);
+                        if (input && errorElement) {
+                            input.classList.add('is-invalid');
+                            errorElement.textContent = errors[0].message;
+                        }
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                successMessage.textContent = 'An error occurred. Please try again.';
+                successMessage.style.backgroundColor = '#dc3545';
+                successMessage.style.display = 'block';
+                setTimeout(() => successMessage.style.opacity = '1', 10);
+                setTimeout(() => {
+                    successMessage.style.opacity = '0';
+                    setTimeout(() => {
+                        successMessage.style.display = 'none';
+                        successMessage.style.backgroundColor = '#FDBE33';
+                    }, 500);
+                }, 3000);
+            });
+        }
+    });
+});
+</script>
+
+<style>
+.contact-section {
+    position: relative;
+    padding: 80px 0;
+    background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
+                url('{% static "img/contact.png" %}');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    color: white;
+    margin-bottom: 50px;
+}
+</style>
+
 <div class="blog">
     <div class="container">
         <div class="section-header text-center">
@@ -480,12 +725,15 @@
             <div class="col-lg-4">
                 <div class="blog-item">
                     <div class="blog-img">
-                        <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" class="img-fluid">
-                        <div class="meta-date">
-                            <span>{{ post.created_at|date:"d" }}</span>
-                            <strong>{{ post.created_at|date:"M" }}</strong>
+                        <a href="{% url 'blog:post_detail' post.slug %}">
+                             <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" class="img-fluid">
+                        </a>
+                         <div class="meta-date">
+                            <p class="mb-0 text-muted small">{{ post.created_at|date:"F d, Y" }}</p>
                         </div>
                     </div>
+
+
                     <div class="blog-text">
                         <h3><a href="{% url 'blog:post_detail' post.slug %}">{{ post.title }}</a></h3>
                         <p>{{ post.excerpt|default:post.content|truncatewords:20 }}</p>

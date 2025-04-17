@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'events',
     'blog',
     'contact',
+    'volunteer',
 ]
 
 

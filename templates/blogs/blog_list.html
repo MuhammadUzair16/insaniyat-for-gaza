@@ -28,7 +28,9 @@
             <div class="col-lg-4">
                 <div class="blog-item">
                     <div class="blog-img">
-                        <img src="{{ post.featured_image.url }}" alt="{{ post.title }}">
+                        <a href="{% url 'blog:post_detail' post.slug %}">
+                             <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" class="img-fluid">
+                        </a>
                     </div>
                     <div class="blog-text">
                         <h3><a href="{{ post.get_absolute_url }}">{{ post.title }}</a></h3>

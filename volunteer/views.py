@@ -1,26 +1,26 @@
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from .forms import ContactForm
-from .models import ContactMessage
+from .forms import VolunteerForm
 
 
-def contact_view(request):
+def volunteer_view(request):
     if request.method == 'POST':
-        form = ContactForm(request.POST)
+        form = VolunteerForm(request.POST)
         if form.is_valid():
-            form.save()
+            volunteer = form.save()
 
             # For AJAX requests
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                 return JsonResponse({
                     'success': True,
-                    'message': 'Your message has been sent successfully!'
+                    'message': 'Thank you for volunteering! We will contact you soon.',
+                    'name': volunteer.name  # Optional: include submitted name in response
                 })
 
             # For regular form submission
-            messages.success(request, 'Your message has been sent successfully!')
-            return redirect('contact:contact')
+            messages.success(request, 'Thank you for volunteering!')
+            return redirect('volunteer:volunteer')
 
         # Handle form errors for AJAX
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -30,6 +30,6 @@ def contact_view(request):
             }, status=400)
 
     else:
-        form = ContactForm()
+        form = VolunteerForm()
 
-    return render(request, 'contact/contact.html', {'form': form})
+    return render(request, 'volunteer/volunteer.html', {'form': form})

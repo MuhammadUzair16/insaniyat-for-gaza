@@ -7,7 +7,7 @@ from django.utils import timezone
 class Event(models.Model):
     title = models.CharField(max_length=200)
     slug = models.SlugField(unique=True, blank=True)
-    description = models.TextField()
+    description = models.TextField(max_length=100)
     image = models.ImageField(upload_to='events/')
     date = models.DateField(validators=[MinValueValidator(timezone.now().date())])
     start_time = models.TimeField()
