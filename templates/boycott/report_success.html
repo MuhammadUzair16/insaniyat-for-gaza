@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<div class="page-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h2>Submit Evidence Report</h2>
+            </div>
+            <div class="col-12">
+                <a href="{% url 'home' %}">Home</a>
+                <a href="{% url 'boycott:boycott-list' %}">Boycott Hub</a>
+                <a href="{% url 'boycott:boycott-detail' target.pk %}">{{ target.name }}</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="page-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h2>Report Submitted</h2>
+            </div>
+            <div class="col-12">
+                <a href="{% url 'home' %}">Home</a>
+                <a href="{% url 'boycott:boycott-list' %}">Boycott Hub</a>
+                <a href="{% url 'boycott:boycott-detail' target.pk %}">{{ target.name }}</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg border-success">
+                <div class="card-header bg-success text-white">
+                    <h2 class="mb-0">
+                        <i class="fas fa-check-circle mr-2"></i>Report Submitted Successfully
+                    </h2>
+                </div>
+
+                <div class="card-body text-center py-5">
+                    <div class="mb-4">
+                        <i class="fas fa-check-circle text-success" style="font-size: 5rem;"></i>
+                    </div>
+                    <h3 class="mb-3">Thank You for Your Contribution!</h3>
+                    <p class="lead">
+                        Your evidence against <strong>{{ target.name }}</strong> has been received.
+                        Our verification team will review it shortly.
+                    </p>
+
+                    <div class="alert alert-info mt-4 text-left">
+                        <h5><i class="fas fa-clock mr-2"></i>What Happens Next?</h5>
+                        <ol class="pl-3">
+                            <li>Initial review within 24 hours</li>
+                            <li>Thorough verification within 2-3 business days</li>
+                            <li>You'll be notified when your report is published</li>
+                        </ol>
+                    </div>
+
+                    <div class="mt-4">
+                        <a href="{% url 'boycott:boycott-detail' target.pk %}" class="btn btn-primary mr-3">
+                            <i class="fas fa-arrow-left mr-2"></i>Back to {{ target.name }}
+                        </a>
+                        <a href="{% url 'boycott:boycott-list' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-list mr-2"></i>View All Targets
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card-footer text-muted">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <i class="fas fa-info-circle mr-2"></i>
+                            <small>Reference ID: #{{ request.session.report_id|default:"Pending" }}</small>
+                        </div>
+                        <div class="col-md-6 text-md-right">
+                            <i class="fas fa-envelope mr-2"></i>
+                            <small>
+                                {% if request.user.is_authenticated %}
+                                Confirmation sent to {{ request.user.email }}
+                                {% else %}
+                                <a href="{% url 'account_login' %}">Login</a> to track your submission
+                                {% endif %}
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Additional Resources -->
+            <div class="card mt-4 border-primary">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-lightbulb mr-2"></i>While You Wait...
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="card h-100 border-0">
+                                <div class="card-body">
+                                    <h5><i class="fas fa-book-open text-info mr-2"></i>Learn More</h5>
+                                    <p>Read our detailed research on {{ target.name }}'s activities</p>
+                                    <a href="#" class="btn btn-sm btn-outline-info">View Documentation</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="card h-100 border-0">
+                                <div class="card-body">
+                                    <h5><i class="fas fa-hands-helping text-success mr-2"></i>Take Action</h5>
+                                    <p>Discover other ways to support the Palestinian cause</p>
+                                    <a href="#" class="btn btn-sm btn-outline-success">Get Involved</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,199 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<div class="page-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h2>Submit Evidence Report</h2>
+            </div>
+            <div class="col-12">
+                <a href="{% url 'home' %}">Home</a>
+                <a href="{% url 'boycott:boycott-list' %}">Boycott Hub</a>
+                <a href="{% url 'boycott:boycott-detail' target.pk %}">{{ target.name }}</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h2 class="mb-0">
+                            <i class="fas fa-flag mr-2"></i>Report Against {{ target.name }}
+                        </h2>
+                        <span class="badge badge-light">
+                            {{ target.get_level_display }}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle mr-2"></i>
+                        <strong>Submission Guidelines:</strong> Provide verifiable sources (news articles, official documents)
+                    </div>
+
+                    <form method="post" id="evidenceForm">
+                        {% csrf_token %}
+
+                        <!-- Evidence URL -->
+                        <div class="form-group mb-4">
+                            <label for="id_evidence" class="font-weight-bold">Evidence URL*</label>
+                            <input type="url" name="evidence" class="form-control {% if form.evidence.errors %}is-invalid{% endif %}"
+                                   id="id_evidence" required placeholder="https://example.com/proof.pdf"
+                                   value="{{ form.evidence.value|default_if_none:'' }}">
+                            {% if form.evidence.errors %}
+                                <div class="invalid-feedback">
+                                    {{ form.evidence.errors|join:", " }}
+                                </div>
+                            {% endif %}
+                            <small class="form-text text-muted">
+                                Must be a direct link to evidence (PDF, news article, official statement)
+                            </small>
+                        </div>
+
+                        <!-- Additional Notes -->
+                        <div class="form-group mb-4">
+                            <label for="id_notes" class="font-weight-bold">Additional Notes</label>
+                            <textarea name="notes" class="form-control" id="id_notes" rows="3"
+                                      placeholder="Explain how this proves {{ target.name }}'s involvement...">{{ form.notes.value|default_if_none:'' }}</textarea>
+                        </div>
+
+                        <!-- Verification Checklist -->
+                        <div class="form-group border-top pt-3">
+                            <h5><i class="fas fa-clipboard-check text-primary"></i> Verification Checklist</h5>
+
+                            {% for item in checklist_items %}
+                            <div class="form-check my-3">
+                                <input class="form-check-input" type="checkbox" id="check{{ forloop.counter }}" required>
+                                <label class="form-check-label" for="check{{ forloop.counter }}">
+                                    {{ item }}
+                                </label>
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="d-flex justify-content-between mt-4">
+                            <button type="submit" class="btn btn-danger btn-lg">
+                                <i class="fas fa-paper-plane mr-2"></i> Submit Evidence
+                            </button>
+                            <a href="{% url 'boycott:boycott-detail' target.pk %}"
+                               class="btn btn-outline-secondary">
+                                <i class="fas fa-times mr-2"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="card-footer text-muted small">
+                    <i class="fas fa-shield-alt mr-1"></i> All submissions are manually verified within 48 hours
+                </div>
+            </div>
+
+            <!-- Evidence Guidelines -->
+            <div class="card mt-4 border-info">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-question-circle mr-2"></i> What Makes Good Evidence?
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">
+                            <i class="fas fa-check-circle text-success mr-2"></i>
+                            Official company statements or financial reports
+                        </li>
+                        <li class="list-group-item">
+                            <i class="fas fa-check-circle text-success mr-2"></i>
+                            News articles from reputable sources
+                        </li>
+                        <li class="list-group-item">
+                            <i class="fas fa-check-circle text-success mr-2"></i>
+                            Government/NGO reports
+                        </li>
+                        <li class="list-group-item list-group-item-danger">
+                            <i class="fas fa-times-circle mr-2"></i>
+                            Social media posts (unless from official accounts)
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Form Validation Script -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('evidenceForm');
+    const checkboxes = form.querySelectorAll('input[type="checkbox"]');
+    const urlField = document.getElementById('id_evidence');
+
+    // URL validation
+    urlField.addEventListener('input', function() {
+        const urlPattern = /^(http|https):\/\/[^ "]+$/;
+        if (!urlPattern.test(this.value)) {
+            this.classList.add('is-invalid');
+        } else {
+            this.classList.remove('is-invalid');
+        }
+    });
+
+    // Form submission handler
+    form.addEventListener('submit', function(e) {
+        let isValid = true;
+
+        // Validate URL
+        if (!urlField.value.startsWith('http')) {
+            urlField.classList.add('is-invalid');
+            isValid = false;
+        }
+
+        // Validate checkboxes
+        checkboxes.forEach(checkbox => {
+            if (!checkbox.checked) {
+                checkbox.parentElement.classList.add('text-danger', 'font-weight-bold');
+                isValid = false;
+            }
+        });
+
+        if (!isValid) {
+            e.preventDefault();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            // Show alert if not already shown
+            if (!document.getElementById('validationAlert')) {
+                const alertDiv = document.createElement('div');
+                alertDiv.id = 'validationAlert';
+                alertDiv.className = 'alert alert-danger alert-dismissible fade show';
+                alertDiv.innerHTML = `
+                    <strong><i class="fas fa-exclamation-triangle"></i> Missing Information!</strong>
+                    Please complete all required fields and check all verification boxes.
+                    <button type="button" class="close" data-dismiss="alert">
+                        <span>&times;</span>
+                    </button>
+                `;
+                form.prepend(alertDiv);
+            }
+        }
+    });
+
+    // Checkbox change handler
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            if (this.checked) {
+                this.parentElement.classList.remove('text-danger', 'font-weight-bold');
+            }
+        });
+    });
+});
+</script>
+
+{% endblock %}

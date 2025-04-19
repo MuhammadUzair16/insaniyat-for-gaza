@@ -17,5 +17,6 @@ urlpatterns = [
     path('', include('blog.urls', namespace='blog')),
     path('contact/', include('contact.urls')),
     path('', include('volunteer.urls', namespace='volunteer')),
+    path('boycott/', include('boycott.urls', namespace='boycott')),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

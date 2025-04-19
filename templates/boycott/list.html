@@ -1,0 +1,170 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<div class="page-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h2>Boycott Hub</h2>
+            </div>
+            <div class="col-12">
+                <a href="{% url 'home' %}">Home</a>
+                <a href="{% url 'boycott:boycott-list' %}">Boycott Hub</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container my-5">
+    <h1 class="text-center mb-4">Boycott Hub <i class="fas fa-hand-paper"></i></h1>
+
+    <div class="row">
+        <!-- Categories Sidebar -->
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-header bg-warning">
+                    <h5>Categories</h5>
+                </div>
+                <div class="list-group list-group-flush">
+                    <a href="{% url 'boycott:boycott-list' %}" class="list-group-item list-group-item-action">
+                        All Companies
+                    </a>
+                    {% for cat in categories %}
+                    <a href="{% url 'boycott:boycott-category' cat.pk %}" class="list-group-item list-group-item-action">
+                        <i class="{{ cat.icon }} mr-2"></i> {{ cat.name }}
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <p class="lead">
+                        <i class="fas fa-info-circle text-primary"></i>
+                        These companies directly fund or support the occupation of Palestine.
+                        <strong>Last updated: {{ targets.0.last_updated|date:"F j, Y" }}</strong>
+                    </p>
+                </div>
+            </div>
+
+            <div class="level-legend mb-4 d-flex flex-wrap justify-content-center align-items-center">
+    <small class="text-muted mr-2">Boycott Levels:</small>
+    <span class="badge badge-danger mr-2">Direct weapons</span>
+    <span class="badge badge-warning mr-2">Significant ties</span>
+    <span class="badge badge-info">Avoid if possible</span>
+</div>
+
+            {% for target in targets %}
+            <div class="card mb-4 border-{% if target.level == 3 %}danger{% elif target.level == 2 %}warning{% else %}info{% endif %}">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between">
+                        <h4>
+                            {% if target.logo %}
+                            <img src="{{ target.logo.url }}" alt="{{ target.name }} logo" style="height:30px" class="mr-2">
+                            {% endif %}
+                            {{ target.name }}
+                        </h4>
+                        <span class="badge badge-{% if target.level == 3 %}danger{% elif target.level == 2 %}warning{% else %}info{% endif %}"
+      style="width: 20px; height: 20px; display: inline-block; padding: 0;"
+      aria-label="{{ target.get_level_display }}"
+      title="{{ target.get_level_display }}">
+</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <p>{{ target.description }}</p>
+
+                    <div class="alternatives-section">
+                        <h5><img src="https://flagcdn.com/w40/pk.png" alt="Pakistan Flag" width="30"><i class="text-danger"></i> Pakistani Alternatives</h5>
+                        {% if target.alternatives.all %}
+                        <div class="alternative-tags">
+                            {% for alt in target.alternatives.all %}
+                            <span class="alternative-tag">
+                                {% if alt.url %}
+                                <a href="{{ alt.url }}" target="_blank" class="alternative-link">
+                                    {{ alt.name }}
+                                </a>
+                                {% else %}
+                                {{ alt.name }}
+                                {% endif %}
+                            </span>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="alert alert-warning small mb-0">
+                            No alternatives listed yet.
+                            <a href="{% url 'boycott:submit-report' target.pk %}">Suggest one</a>.
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="d-flex justify-content-between mt-3">
+                        <a href="{% url 'boycott:boycott-detail' target.pk %}" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-info-circle"></i> Details
+                        </a>
+                        <a href="{% url 'boycott:submit-report' target.pk %}" class="btn btn-sm btn-outline-danger">
+                            <i class="fas fa-flag"></i> Report
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<style>
+.alternatives-section {
+    margin: 1.5rem 0;
+}
+
+.alternative-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.alternative-tag {
+    display: inline-block;
+    padding: 5px 12px;
+    background-color: #f0f7f0;
+    border: 1px solid #d1e7dd;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    color: #0f5132;
+}
+
+.alternative-link {
+    color: #0f5132;
+    text-decoration: none;
+}
+
+.alternative-link:hover {
+    text-decoration: underline;
+}
+
+.alternative-tag:hover {
+    background-color: #d1e7dd;
+    transform: translateY(-1px);
+
+}
+
+.level-legend {
+    font-size: 0.9rem;
+    padding: 0.5rem;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+}
+
+.level-legend .badge {
+    padding: 0.25em 0.6em;
+    font-weight: 500;
+}
+</style>
+{% endblock %}

@@ -43,6 +43,9 @@ INSTALLED_APPS = [
     'blog',
     'contact',
     'volunteer',
+    'boycott',
+    'crispy_forms',
+
 ]
 
 

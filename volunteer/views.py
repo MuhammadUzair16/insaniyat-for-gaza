@@ -15,14 +15,14 @@ def volunteer_view(request):
                 return JsonResponse({
                     'success': True,
                     'message': 'Thank you for volunteering! We will contact you soon.',
-                    'name': volunteer.name  # Optional: include submitted name in response
+                    'name': volunteer.name
                 })
 
-            # For regular form submission
+
             messages.success(request, 'Thank you for volunteering!')
             return redirect('volunteer:volunteer')
 
-        # Handle form errors for AJAX
+
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             return JsonResponse({
                 'success': False,
